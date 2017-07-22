@@ -6,17 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static leo.com.mqtt.R.id.editTextName;
-import static leo.com.mqtt.R.id.spinnerProgramme;
+import java.math.BigInteger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,6 +98,14 @@ public class MainActivity extends AppCompatActivity {
                 + password.length() + asciiToHex(password);
 
         txtViewEncodeResult.setText("Encode Result: \n" + encodeText);
+
+        byte[] b = new BigInteger(encodeText,16).toByteArray();
+
+        for(int i=0; i < b.length; i++){
+            Log.d("Byte" + i, b[i] + "");
+        }
+
+
     }
 
     public String splitString(int length, String subscribeData){
