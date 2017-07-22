@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MQTT</string>
+
+    <string name="programme_prompt">Choose a programme</string>
+
+    <string-array name="programme_arrays">
+        <item>RSD</item>
+        <item>RIT</item>
+    </string-array>
+</resources>
