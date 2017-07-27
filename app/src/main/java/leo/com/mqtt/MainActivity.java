@@ -20,6 +20,13 @@ public class MainActivity extends AppCompatActivity {
     TextView txtViewEncodeResult;
     static int decodeCurrentCursor = 0; // To check current cursor, every cursor checked, will increase the number check
 
+    Action action = new Action(); // This class is to perform action such as split string, convert hex to ascll and convert ascll to hex
+
+    //======================================== Note =========================================
+    //In this demo project, I only set the data into object class for further use and no perform any get method in this class.
+    //Student can use get method when want to use it.
+    Student studentDetails = new Student(); //Set data for futher use, in this
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,18 +100,23 @@ public class MainActivity extends AppCompatActivity {
                 char nameLengthSecondDigit = receiveSubscribeData.charAt(decodeCurrentCursor + 2);
                 decodeCurrentCursor += 2;
                 int nameSize = Integer.parseInt(String.valueOf(nameLengthFirstDigit)+String.valueOf(nameLengthSecondDigit));
-                editTextName.setText(hexToAscii(splitString(nameSize,receiveSubscribeData)));
+                String name = action.hexToAscii(action.splitString(nameSize,receiveSubscribeData));
+                editTextName.setText(name);
+                studentDetails.setStudName(name);
 
                 if(receiveSubscribeData.charAt(decodeCurrentCursor + 6) == '1'){
                     radMale.setChecked(true);
+                    studentDetails.setStudGender("male");
                 }else if(receiveSubscribeData.charAt(decodeCurrentCursor + 6) == '2'){
                     radFemale.setChecked(true);
+                    studentDetails.setStudGender("female");
                 }else{
 
                 }
                 decodeCurrentCursor += 6;
 
-                String programmeCode = hexToAscii(splitString(3,receiveSubscribeData)); //Decode from hex to ASCll String
+                String programmeCode = action.hexToAscii(action.splitString(3,receiveSubscribeData)); //Decode from hex to ASCll String
+                studentDetails.setStudProgramme(programmeCode.toString());
                 if(programmeCode.equals("RSD")){
                     spinner.setSelection(0);
                 }else if(programmeCode.equals("RIT")){
@@ -118,7 +130,9 @@ public class MainActivity extends AppCompatActivity {
                 char passwordLengthSecondDigit = receiveSubscribeData.charAt(decodeCurrentCursor+2);
                 decodeCurrentCursor += 2;
                 int passwordSize = Integer.parseInt(String.valueOf(passwordLengthFirstDigit)+String.valueOf(passwordLengthSecondDigit));
-                editTextPassword.setText(hexToAscii(splitString(passwordSize,receiveSubscribeData)));
+                String password = action.hexToAscii(action.splitString(passwordSize,receiveSubscribeData));
+                studentDetails.setStudPasword(password);
+                editTextPassword.setText(password);
             }else{
 
                 publishBuilder.setMessage("Receive publish")
@@ -154,15 +168,22 @@ public class MainActivity extends AppCompatActivity {
         String gender = "";
         if(radMale.isChecked()){
             gender = "000001";
+            studentDetails.setStudGender("male");
         }else if(radFemale.isChecked()){
             gender = "000002";
+            studentDetails.setStudGender("female");
         }
         String programmeCode = spinner.getSelectedItem().toString();
         String numOfYear = "00000" + editTextYear.getText().toString();
 
         //Turn ASCll name, programme code and passsword to HEX.
-        encodeText += name.length() + asciiToHex(name) + gender + asciiToHex(programmeCode) + numOfYear
-                + password.length() + asciiToHex(password);
+        encodeText += name.length() + action.asciiToHex(name) + gender + action.asciiToHex(programmeCode) + numOfYear
+                + password.length() + action.asciiToHex(password);
+
+        studentDetails.setStudName(name);
+        studentDetails.setStudPasword(password);
+        studentDetails.setStudProgramme(programmeCode);
+        studentDetails.setStudYearofStudy(editTextYear.getText().toString());
 
         txtViewEncodeResult.setText("Encode Result: \n" + encodeText);
 
@@ -176,35 +197,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //This function perform split string, parameter is size of String and String data
-    public String splitString(int length, String subscribeData){
-        String completeString = "";
-        for(int i = 0 ; i < length*2 ; i++){ // Length *2 because 1 byte have 2 bit
-            decodeCurrentCursor ++;          // Every loop cursor increase 1
-            completeString += subscribeData.charAt(decodeCurrentCursor); // Store every char split out into string
-        }
-        return completeString;
-    }
 
-    //Turn Hex to ASCll For example : 31 turn to 1
-    public String hexToAscii(String hexStr) {
-        StringBuilder output = new StringBuilder("");
-        for (int i = 0; i < hexStr.length(); i += 2) {
-            String str = hexStr.substring(i, i + 2);
-            output.append((char) Integer.parseInt(str, 16));
-        }
-        return output.toString();
-    }
-
-    //Turn ASCll to Hex For example : 1 turn to 31
-    public String asciiToHex(String asciiStr) {
-        char[] chars = asciiStr.toCharArray();
-        StringBuilder hex = new StringBuilder();
-        for (char ch : chars) {
-            hex.append(Integer.toHexString((int) ch));
-        }
-
-        return hex.toString();
-    }
 
 }
