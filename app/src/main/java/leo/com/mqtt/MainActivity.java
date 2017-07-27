@@ -39,13 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
         //                 Prepare message publish to MQTT Server
         //===============================================================================
-        // 1 = Login Action
-        // 0 = Researve
+        // 0001 = Login Action
+        // 0000 = Researve
         // 124c6565205761682050656e67 = 12 Length of Username (First 2 ASCll character)
         //                            = 4c6565205761682050656e67 Username
         // 066c656f313233 = 06 Length of password (First 2 ASCll character)
         //                = 6c656f313233 Password
-        String sendSubscibeData = "10124c6565205761682050656e67066c656f313233";
+        String sendSubscibeData = "00010000124c6565205761682050656e67066c656f313233";
 
         // Alert show what data publish to server
         AlertDialog.Builder publishBuilder = new AlertDialog.Builder(this);
@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         //             Receive data publish from MQTT Server and split it
         //=================================================================================
-        // 5 = Respond from server
-        // 0 = Reserve
+        // 0005 = Respond from server
+        // 0000 = Reserve
         // 124c6565205761682050656e67 = 12 Length of Username (First 2 ASCll character)
         //                            = 4c6565205761682050656e67 Username
         //
@@ -83,11 +83,11 @@ public class MainActivity extends AppCompatActivity {
         //
         // 066c656f313233 = 06 Length of password (First 2 ASCll character)
         //                = 6c656f313233 Password
-        String receiveSubscribeData = "50124c6565205761682050656e67000002525344000003066c656f313233"; // Sample receive data from MQTT Server
+        String receiveSubscribeData = "00050000124c6565205761682050656e67000002525344000003066c656f313233"; // Sample receive data from MQTT Server
         if(receiveSubscribeData.length()%2 == 0){
-            if(receiveSubscribeData.charAt(decodeCurrentCursor) == '5'){ // Check if the server return command 5 = Login Respond
+            if(receiveSubscribeData.charAt(decodeCurrentCursor+3) == '5'){ // Check if the server return command 5 = Login Respond
 
-                decodeCurrentCursor += 1;
+                decodeCurrentCursor += 7;
 
                 char nameLengthFirstDigit = receiveSubscribeData.charAt(decodeCurrentCursor + 1);
                 char nameLengthSecondDigit = receiveSubscribeData.charAt(decodeCurrentCursor + 2);
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnEncode(View v) {
         decodeCurrentCursor = 0;
-        String encodeText = "60"; // <-- Action code 6, reserve code 0.
+        String encodeText = "00060000"; // <-- Action code 0006, reserve code 0000.
         String name = editTextName.getText().toString();
         String password = editTextPassword.getText().toString();
         String gender = "";
