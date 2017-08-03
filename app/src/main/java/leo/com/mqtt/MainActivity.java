@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
     TextView txtViewEncodeResult;
     static int decodeCurrentCursor = 0; // To check current cursor, every cursor checked, will increase the number check
 
-    Action action = new Action(); // This class is to perform action such as split string, convert hex to ascll and convert ascll to hex
-
     //======================================== Note =========================================
     //In this demo project, I only set the data into object class for further use and no perform any get method in this class.
     //Student can use get method when want to use it.
@@ -46,13 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
         //                 Prepare message publish to MQTT Server
         //===============================================================================
-        // 0001 = Login Action
-        // 0000 = Researve
+        // 000001 = Login Action
+        // 000000000000000000000000 = Researve
         // 124c6565205761682050656e67 = 12 Length of Username (First 2 ASCll character)
         //                            = 4c6565205761682050656e67 Username
         // 066c656f313233 = 06 Length of password (First 2 ASCll character)
         //                = 6c656f313233 Password
-        String sendSubscibeData = "00010000124c6565205761682050656e67066c656f313233";
+        String sendSubscibeData = "000001000000000000000000000000124c6565205761682050656e67066c656f313233";
 
         // Alert show what data publish to server
         AlertDialog.Builder publishBuilder = new AlertDialog.Builder(this);
@@ -77,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
         //             Receive data publish from MQTT Server and split it
         //=================================================================================
-        // 0005 = Respond from server
-        // 0000 = Reserve
+        // 000005 = Respond from server
+        // 000000000000000000000000 = Reserve
         // 124c6565205761682050656e67 = 12 Length of Username (First 2 ASCll character)
         //                            = 4c6565205761682050656e67 Username
         //
@@ -90,17 +88,17 @@ public class MainActivity extends AppCompatActivity {
         //
         // 066c656f313233 = 06 Length of password (First 2 ASCll character)
         //                = 6c656f313233 Password
-        String receiveSubscribeData = "00050000124c6565205761682050656e67000002525344000003066c656f313233"; // Sample receive data from MQTT Server
+        String receiveSubscribeData = "000005000000000000000000000000124c6565205761682050656e67000002525344000003066c656f313233"; // Sample receive data from MQTT Server
         if(receiveSubscribeData.length()%2 == 0){
-            if(receiveSubscribeData.charAt(decodeCurrentCursor+3) == '5'){ // Check if the server return command 5 = Login Respond
+            if(receiveSubscribeData.charAt(decodeCurrentCursor+5) == '5'){ // Check if the server return command 5 = Login Respond
 
-                decodeCurrentCursor += 7;
+                decodeCurrentCursor += 29;
 
                 char nameLengthFirstDigit = receiveSubscribeData.charAt(decodeCurrentCursor + 1);
                 char nameLengthSecondDigit = receiveSubscribeData.charAt(decodeCurrentCursor + 2);
                 decodeCurrentCursor += 2;
                 int nameSize = Integer.parseInt(String.valueOf(nameLengthFirstDigit)+String.valueOf(nameLengthSecondDigit));
-                String name = action.hexToAscii(action.splitString(nameSize,receiveSubscribeData));
+                String name = Action.hexToAscii(Action.splitString(nameSize,receiveSubscribeData));
                 editTextName.setText(name);
                 studentDetails.setStudName(name);
 
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 decodeCurrentCursor += 6;
 
-                String programmeCode = action.hexToAscii(action.splitString(3,receiveSubscribeData)); //Decode from hex to ASCll String
+                String programmeCode = Action.hexToAscii(Action.splitString(3,receiveSubscribeData)); //Decode from hex to ASCll String
                 studentDetails.setStudProgramme(programmeCode.toString());
                 if(programmeCode.equals("RSD")){
                     spinner.setSelection(0);
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 char passwordLengthSecondDigit = receiveSubscribeData.charAt(decodeCurrentCursor+2);
                 decodeCurrentCursor += 2;
                 int passwordSize = Integer.parseInt(String.valueOf(passwordLengthFirstDigit)+String.valueOf(passwordLengthSecondDigit));
-                String password = action.hexToAscii(action.splitString(passwordSize,receiveSubscribeData));
+                String password = Action.hexToAscii(Action.splitString(passwordSize,receiveSubscribeData));
                 studentDetails.setStudPasword(password);
                 editTextPassword.setText(password);
             }else{
@@ -162,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnEncode(View v) {
         decodeCurrentCursor = 0;
-        String encodeText = "00060000"; // <-- Action code 0006, reserve code 0000.
+        String encodeText = "000006000000000000000000000000"; // <-- Action code 000006, reserve code 000000000000000000000000.
         String name = editTextName.getText().toString();
         String password = editTextPassword.getText().toString();
         String gender = "";
@@ -177,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
         String numOfYear = "00000" + editTextYear.getText().toString();
 
         //Turn ASCll name, programme code and passsword to HEX.
-        encodeText += name.length() + action.asciiToHex(name) + gender + action.asciiToHex(programmeCode) + numOfYear
-                + password.length() + action.asciiToHex(password);
+        encodeText += name.length() + Action.asciiToHex(name) + gender + Action.asciiToHex(programmeCode) + numOfYear
+                + password.length() + Action.asciiToHex(password);
 
         studentDetails.setStudName(name);
         studentDetails.setStudPasword(password);
